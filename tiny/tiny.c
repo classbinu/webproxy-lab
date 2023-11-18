@@ -62,6 +62,7 @@ void doit(int fd)
   if (strcasecmp(method, "GET")) /* 동일하면 0을 반환 */
   {
     clienterror(fd, filename, "501", "Not Implemented", "Tiny does not implement this method");
+    return;
   }
   read_requesthdrs(&rio);
 
@@ -137,7 +138,7 @@ int parse_uri(char *uri, char *filename, char *cgiargs)
     strcpy(cgiargs, "");
     strcpy(filename, ".");
     strcat(filename, uri);
-    if (uri[strlen(uri) - 1 == '/'])
+    if (uri[strlen(uri) - 1] == '/')
       strcat(filename, "home.html");
     return 1;
   }
