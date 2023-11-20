@@ -3,7 +3,7 @@
 
 void doit(int fd);
 void read_requesthdrs(rio_t *rp);
-void parse_uri(char *uri, char *hostname, char *path, int *port);
+void parse_uri(char *uri, char *hostname, char *port, char *path);
 void clienterror(int fd, char *cause, char *errnum, char *shortmsg, char *longmsg);
 
 /* Recommended max cache and object sizes */
@@ -48,8 +48,7 @@ int main(int argc, char **argv)
 void doit(int fd)
 {
   char buf[MAXLINE], method[MAXLINE], uri[MAXLINE], version[MAXLINE];
-  char hostname[MAXLINE], path[MAXLINE];
-  int port;
+  char hostname[MAXLINE], path[MAXLINE], port[MAXLINE];
   rio_t rio_client, rio_server;
 
   Rio_readinitb(&rio_client, fd);
@@ -62,7 +61,7 @@ void doit(int fd)
     return;
   }
 
-  parse_uri(uri, hostname, path, &port);
+  parse_uri(uri, hostname, port, path);
 
   int serverfd = Open_clientfd(hostname, port);
   Rio_readinitb(&rio_server, serverfd);
@@ -85,13 +84,33 @@ void doit(int fd)
   Close(serverfd);
 }
 
-void parse_uri(char *uri, char *hostname, char *path, int *port)
+void parse_uri(char *uri, char *hostname, char *port, char *path)
 {
-  *port = 80; // Default port for HTTP
+  strcpy(hostname, "3.35.136.223");
+  strcpy(port, "80");
+  printf("%s %s\n", hostname, port);
 }
 
 void clienterror(int fd, char *cause, char *errnum, char *shortmsg, char *longmsg)
 {
+  char buf[MAXLINE], body[MAXBUF];
+
+  sprintf(body, "<html><title>Proxy Error</title>");
+  sprintf(body, "%s<body bgcolor="
+                "ffffff"
+                ">\r\n",
+          body);
+  sprintf(body, "%s%s: %s\r\n", body, errnum, shortmsg);
+  sprintf(body, "%s<p>%s: %s\r\n", body, longmsg, cause);
+  sprintf(body, "%s<hr><em>Proxy server</em>\r\n", body);
+
+  sprintf(buf, "HTTP/1.1 %s %s\r\n", errnum, shortmsg);
+  Rio_writen(fd, buf, strlen(buf));
+  sprintf(buf, "Content-type: text/html\r\n");
+  Rio_writen(fd, buf, strlen(buf));
+  sprintf(buf, "Content-length: %d\r\n\r\n", (int)strlen(body));
+  Rio_writen(fd, buf, strlen(buf));
+  Rio_writen(fd, body, strlen(body));
 }
 
 void read_requesthdrs(rio_t *rp)
