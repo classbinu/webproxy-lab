@@ -154,7 +154,13 @@ int parse_uri(char *uri, char *filename, char *cgiargs)
       *ptr = '\0';
     }
     else
+    {
       strcpy(cgiargs, "");
+      strcpy(filename, ".");
+      strcat(filename, uri);
+      strcat(filename, ".html");
+      return 1;
+    }
     strcpy(filename, ".");
     strcat(filename, uri);
     return 0;
