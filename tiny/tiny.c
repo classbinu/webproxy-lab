@@ -7,6 +7,7 @@
  *   - Fixed sprintf() aliasing issue in serve_static(), and clienterror().
  */
 #include "csapp.h"
+#include <stdlib.h>
 
 void doit(int fd);
 void read_requesthdrs(rio_t *rp);
@@ -180,10 +181,27 @@ void serve_static(int fd, char *filename, int filesize)
   printf("%s", buf);
 
   srcfd = Open(filename, O_RDONLY, 0);
-  srcp = Mmap(0, filesize, PROT_READ, MAP_PRIVATE, srcfd, 0);
+  // srcp = Mmap(0, filesize, PROT_READ, MAP_PRIVATE, srcfd, 0);
+  srcp = (char *)malloc(filesize);
+  if (srcp == NULL)
+  {
+    fprintf(stderr, "Memory allocation error\n");
+    return ;
+  }
+
+  ssize_t bytes_read = Rio_readn(srcfd, srcp, filesize);
+  if (bytes_read < 0)
+  {
+    fprintf(stderr, "Error reading file\n");
+    free(srcp);
+    Close(srcfd);
+    return;
+  }
+
   Close(srcfd);
   Rio_writen(fd, srcp, filesize);
-  Munmap(srcp, filesize);
+  // Munmap(srcp, filesize);
+  free(srcp);
 }
 
 void serve_static_header(int fd, char *filename, int filesize)
