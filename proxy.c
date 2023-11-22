@@ -109,7 +109,7 @@ void parse_uri(char *uri, char *hostname, char *port, char *path)
   if (port_index)
   {
     *path_index = '\0';
-    strcpy(port, port_index);
+    strcpy(port, port_index + 1);
     printf("port: %s\n", port);
 
     *port_index = '\0';
