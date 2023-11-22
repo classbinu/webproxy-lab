@@ -86,20 +86,42 @@ void doit(int fd)
 
 void parse_uri(char *uri, char *hostname, char *port, char *path)
 {
-  strcpy(hostname, "3.35.136.223");
+  strcpy(hostname, "");
   strcpy(port, "80");
-  printf("%s %s\n", hostname, port);
-  // printf("\n-----\n");
-  // printf("%s", uri);
-  // printf("\n-----\n");
+  strcpy(path, "");
 
-  strcpy(uri, uri + 7);
-  printf("\n%s\n", uri);
+  /* http:// 삭제 */
+  if (strncmp(uri, "http://", 7) == 0)
+  {
+    uri += 7;
+  }
 
-  // if (uri[strlen(uri) - 1] == '/')
-  // {
+  /* path 추출 */
+  char *path_index = strchr(uri, '/');
+  if (path_index)
+  {
+    strcpy(path, path_index);
+    printf("path: %s\n", path);
+  }
 
-  // }
+  /* 포트 + 호스트 추출 */
+  char *port_index = strchr(uri, ':');
+  if (port_index)
+  {
+    *path_index = '\0';
+    strcpy(port, port_index);
+    printf("port: %s\n", port);
+
+    *port_index = '\0';
+    strcpy(hostname, uri);
+    printf("host: %s\n", hostname);
+  }
+  else
+  {
+    *path_index = '\0';
+    strcpy(hostname, uri);
+    printf("host: %s\n", hostname);
+  }
 }
 
 void clienterror(int fd, char *cause, char *errnum, char *shortmsg, char *longmsg)
