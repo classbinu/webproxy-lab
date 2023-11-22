@@ -89,6 +89,17 @@ void parse_uri(char *uri, char *hostname, char *port, char *path)
   strcpy(hostname, "3.35.136.223");
   strcpy(port, "80");
   printf("%s %s\n", hostname, port);
+  // printf("\n-----\n");
+  // printf("%s", uri);
+  // printf("\n-----\n");
+
+  strcpy(uri, uri + 7);
+  printf("\n%s\n", uri);
+
+  // if (uri[strlen(uri) - 1] == '/')
+  // {
+
+  // }
 }
 
 void clienterror(int fd, char *cause, char *errnum, char *shortmsg, char *longmsg)
